@@ -12,7 +12,11 @@ export class AuthService {
     private JwtService: JwtService){}
 
  async register(createAuthDto: RegisterAuthDto) {
-    const { password } = createAuthDto
+    const { password, name, email } = createAuthDto
+    if (!password) throw new HttpException('MISSING_PASSWORD', HttpStatus.UNPROCESSABLE_ENTITY)
+    if (!name) throw new HttpException('MISSING_NAME', HttpStatus.UNPROCESSABLE_ENTITY)
+    if (!email) throw new HttpException('MISSING_EMAIL', HttpStatus.UNPROCESSABLE_ENTITY)
+      
     const plainToHash = await hash(password, 10)
    const userData = {...createAuthDto, password: plainToHash}
     return this.prismaService.user.create({
@@ -22,6 +26,9 @@ export class AuthService {
 
  async login(loginAuthDto: LoginAuthDto) {
     const { email, password } = loginAuthDto
+    if (!password) throw new HttpException('MISSING_PASSWORD', HttpStatus.UNPROCESSABLE_ENTITY)
+    if (!email) throw new HttpException('MISSING_EMAIL', HttpStatus.UNPROCESSABLE_ENTITY)
+
     const userFound = await this.prismaService.user.findUnique({
       where:{
         email
